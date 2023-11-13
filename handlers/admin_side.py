@@ -159,7 +159,7 @@ async def next_reply_command(message: types.Message):
         await states.AnswerTheQuestion.start.set()
         await bot.send_message(ADMINS_CHAT_ID, f'Вопрос от {all_qtns[0][2]}:\n'
                                f'{all_qtns[0][1]}',
-                               reply_markup=inline_keyboard.create_reply_keyboard(all_qtns[0][0]))
+                               reply_markup=await inline_keyboard.create_reply_keyboard(all_qtns[0][0]))
     else:
         await bot.send_message(ADMINS_CHAT_ID, 'Вопросы закончились')
 
