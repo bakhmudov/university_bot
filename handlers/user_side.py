@@ -76,7 +76,7 @@ async def ask_question_command(message: types.Message):
     await states.AskQuestionStates.get_question.set()
 
 
-@dp.message_handler(state=states.AnswerTheQuestion.answer)
+@dp.message_handler(state=states.AskQuestionStates.get_question)
 async def get_question_state(message: types.Message, state: FSMContext):
     await add_proxy_data(state, {
         'user_id': message.from_user.id,

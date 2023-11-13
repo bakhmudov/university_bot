@@ -13,7 +13,7 @@ def sql_start():
     cursor.execute('CREATE TABLE IF NOT EXISTS users (tg_id INTEGER, name_group TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS news (dt DATETIME, title VARCHAR(255), content TEXT, img TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS groups (name VARCHAR(6) PRIMARY KEY, schedule TEXT)')
-    cursor.execute('CREATE TABLE IF NOT EXITSTS questions (user_id INT, question TEXT, nick VARCHAR(50))')
+    cursor.execute('CREATE TABLE IF NOT EXISTS questions (user_id INT, question TEXT, nick VARCHAR(50))')
 
     base.commit()
 

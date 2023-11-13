@@ -5,15 +5,17 @@ from create_bot import bot, dp
 from handlers import states, sending_messages
 from database import sqllite_db
 from keyboards import *
+from create_bot import ADMINS_CHAT_ID
+from database.sqllite_db import get_data_from_proxy
 
 
-# // NEWS //
 async def add_proxy_data(state, data):
     async with state.proxy() as proxy:
         for key, value in data.items():
             proxy[key] = value
 
 
+# // NEWS //
 @dp.message_handler(commands=['create_news'])
 async def create_news(message: types.Message):
     await states.NewsStates.title.set()
@@ -148,3 +150,34 @@ async def delete_schedule_state(message: types.Message, state: FSMContext):
         await bot.send_message(message.chat.id, 'Такой группы не существует')
         await state.finish()
 
+
+# // Answer to the question //
+@dp.message_handler(commands=['next_reply'], is_chat_admin=True)
+async def next_reply_command(message: types.Message):
+    all_qtns = sqllite_db.get_all_questions()
+    if all_qtns:
+        await states.AnswerTheQuestion.start.set()
+        await bot.send_message(ADMINS_CHAT_ID, f'Вопрос от {all_qtns[0][2]}:\n'
+                               f'{all_qtns[0][1]}',
+                               reply_markup=inline_keyboard.create_reply_keyboard(all_qtns[0][0]))
+    else:
+        await bot.send_message(ADMINS_CHAT_ID, 'Вопросы закончились')
+
+
+@dp.callback_query_handler(Text(startswith='qtn '), state=states.AnswerTheQuestion.start)
+async def callback_question_and_start_state(callback: types.CallbackQuery, state: FSMContext):
+    user_id = callback.data.replace('qtn', '')
+    await add_proxy_data(state, {'user_id': user_id})
+    await states.AnswerTheQuestion.next()
+    await callback.message.reply('Введите ответ пользователю', reply=False)
+    await callback.answer()
+
+
+@dp.message_handler(state=states.AnswerTheQuestion.answer)
+async def answer_the_question(message: types.Message, state: FSMContext):
+    dict_from_proxy = await get_data_from_proxy(state)
+    await bot.send_message(int(dict_from_proxy['user_id']), 'На ваш вопрос ответили: \n'
+                           f'{message.text}')
+    await message.reply('Пользователь получил ваш ответ', reply=False)
+    await sqllite_db.delete_question(int(dict_from_proxy['user_id']))
+    await state.finish()
