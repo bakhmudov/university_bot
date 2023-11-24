@@ -91,7 +91,7 @@ async def delete_group_state(message: types.Message, state: FSMContext):
     if message.text in all_groups_names:
         await sqllite_db.delete_group(message.text)
         await message.reply('Группа удалена', reply=False,
-                            reply_markup=types.ReplyKeyboardRemove)
+                            reply_markup=types.ReplyKeyboardRemove())
     else:
         await bot.send_message(message.chat.id, 'Группа, которую вы хотели удалить, не существует')
     await state.finish()
@@ -135,7 +135,7 @@ async def delete_schedule(message: types.Message):
     kb = usually_keyboard.group_keyboard(groups)
     await message.reply('Выберите группу которую хотите удалить', reply=False,
                         reply_markup=kb)
-    await   states.DeleteScheduleStates.select_group.set()
+    await states.DeleteScheduleStates.select_group.set()
 
 
 @dp.message_handler(state=states.DeleteScheduleStates.select_group)
@@ -153,7 +153,7 @@ async def delete_schedule_state(message: types.Message, state: FSMContext):
 
 # // Answer to the question //
 @dp.message_handler(commands=['next_reply'], is_chat_admin=True)
-async def next_reply_command(message: types.Message):
+async def next_reply_command():
     all_qtns = sqllite_db.get_all_questions()
     if all_qtns:
         await states.AnswerTheQuestion.start.set()

@@ -110,3 +110,13 @@ async def add_question(state):
                                                               data['nick'],))
     base.commit()
 
+
+async def get_schedule_for_user(user_id):
+    user_group = cursor.execute('SELECT name_group FROM users WHERE tg_id = ?',
+                                (user_id,)).fetchone()
+    if user_group:
+        group_schedule = cursor.execute('SELECT schedule FROM groups WHERE name = ?',
+                                        (user_group[0],)).fetchone()
+        if group_schedule:
+            return group_schedule[0]
+    return None

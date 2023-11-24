@@ -90,3 +90,14 @@ async def get_question_state(message: types.Message, state: FSMContext):
 @dp.message_handler(commands=['id'])
 async def get_group_id(message: types.Message, state: FSMContext):
     await message.reply(message.chat.id)
+
+
+@dp.message_handler(commands=['get_schedule'])
+async def get_schedule_command(message: types.Message):
+    user_id = message.from_user.id
+    schedule = await sqllite_db.get_schedule_for_user(user_id)
+
+    if schedule:
+        await bot.send_message(message.chat.id, f'Ваше расписание:\n{schedule}')
+    else:
+        await bot.send_message(message.chat.id, 'Ваше расписание не найдено')
